@@ -2,12 +2,10 @@
 <html>
 <head>
 
-<title>ENV JSONP Test</title>
+<title>ENV Working Test</title>
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
 
 <style>
 body{
@@ -26,45 +24,43 @@ body{
 
 <div id="msg">Loading ENV...</div>
 
+<!-- SHA256 FIRST -->
+<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
+
 <script>
 
-/* ===== CONFIG ===== */
+/* ===== GLOBAL CALLBACK ===== */
 
-const repo="testing-env";
-const key ="fdf9119bf119a445";
-const salt="my-super-salt-789";
-
-/* ===== SIGNATURE ===== */
-
-const sig=sha256(repo+key+salt);
-
-/* ===== CALLBACK (NAME MUST MATCH URL) ===== */
-
-function loadENV(env){
-
-  if(env.error){
-    document.getElementById("msg")
-      .innerText=env.error;
-    return;
-  }
+window.loadENV=function(env){
 
   document.getElementById("msg")
-    .innerText=env.TEST_MESSAGE;
+    .innerText =
+    env.TEST_MESSAGE || "No message";
 
-}
+};
 
-/* ===== LOAD JSONP SCRIPT ===== */
+/* ===== WAIT UNTIL SHA256 LOADED ===== */
 
-const script=document.createElement("script");
+window.onload=function(){
 
-script.src=
-"https://myenv.my-style.in/api.php"+
-"?repo="+repo+
-"&key="+key+
-"&sig="+sig+
-"&callback=loadENV";   // MUST match function name
+  const repo="testing-env";
+  const key ="fdf9119bf119a445";
+  const salt="my-super-salt-789";
 
-document.body.appendChild(script);
+  const sig=sha256(repo+key+salt);
+
+  const script=document.createElement("script");
+
+  script.src=
+  "https://myenv.my-style.in/api.php"+
+  "?repo="+repo+
+  "&key="+key+
+  "&sig="+sig+
+  "&callback=loadENV";
+
+  document.body.appendChild(script);
+
+};
 
 </script>
 
