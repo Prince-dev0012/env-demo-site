@@ -1,46 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
-<title>ENV JSONP Final</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<title>ENV API Test</title>
 
 <style>
 body{
+  margin:0;
   background:black;
   color:lime;
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
+  text-align:center;
+}
+
+.box{
+  border:2px solid lime;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 0 20px lime;
+  max-width:400px;
+}
+
+h2{
+  margin-bottom:20px;
+}
+
+.status{
+  font-size:13px;
+  opacity:0.7;
+  margin-top:15px;
 }
 </style>
 
 </head>
 <body>
 
-<div id="msg">Loading ENV...</div>
+<div class="box">
 
-<!-- 1️⃣ DEFINE CALLBACK FIRST -->
+<h2>ENV Loader</h2>
+
+<div id="message">
+Loading ENV...
+</div>
+
+<div class="status" id="status">
+Preparing request...
+</div>
+
+</div>
+
+<!-- ============================= -->
+<!-- 1️⃣ GLOBAL CALLBACK FUNCTION  -->
+<!-- ============================= -->
+
 <script>
 
-function loadENV(env){
+function loadENV(data){
 
-  document.getElementById("msg")
-    .innerText =
-    env.TEST_MESSAGE || "No message";
+  const msg=document.getElementById("message");
+  const status=document.getElementById("status");
+
+  if(!data){
+    msg.innerText="No data received";
+    return;
+  }
+
+  if(data.error){
+    msg.innerText=data.error;
+    status.innerText="API returned error";
+    return;
+  }
+
+  msg.innerText=data.TEST_MESSAGE || "ENV loaded";
+  status.innerText="ENV Loaded Successfully";
 
 }
 
 </script>
 
-<!-- 2️⃣ LOAD SHA256 -->
+<!-- ============================= -->
+<!-- 2️⃣ SHA256 LIBRARY            -->
+<!-- ============================= -->
+
 <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
 
-<!-- 3️⃣ LOAD JSONP AFTER SHA256 -->
+<!-- ============================= -->
+<!-- 3️⃣ JSONP LOADER              -->
+<!-- ============================= -->
+
 <script>
 
 window.addEventListener("load",function(){
@@ -49,16 +103,32 @@ window.addEventListener("load",function(){
   const key ="fdf9119bf119a445";
   const salt="my-super-salt-789";
 
-  const sig=sha256(repo+key+salt);
+  /* Generate signature */
 
-  const script=document.createElement("script");
+  const signature=sha256(repo+key+salt);
 
-  script.src=
+  document.getElementById("status")
+    .innerText="Signature generated";
+
+  /* Build API URL */
+
+  const apiURL=
   "https://myenv.my-style.in/api.php"+
   "?repo="+repo+
   "&key="+key+
-  "&sig="+sig+
+  "&sig="+signature+
   "&callback=loadENV";
+
+  /* Create JSONP script */
+
+  const script=document.createElement("script");
+
+  script.src=apiURL;
+
+  script.onerror=function(){
+    document.getElementById("message")
+      .innerText="Failed to load API script";
+  };
 
   document.body.appendChild(script);
 
