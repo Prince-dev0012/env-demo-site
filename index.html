@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ENV Live Test</title>
+
+<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
+
+<style>
+body{
+  background:black;
+  color:lime;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:Arial;
+}
+</style>
+
+</head>
+<body>
+
+<div id="msg">Loading ENV...</div>
+
+<script>
+
+/* ====== CONFIG ====== */
+
+const repo = "testing-env";
+const key  = "fdf9119bf119a445";
+
+/* ⚠️ MUST MATCH config.php */
+const salt = "my-super-salt-789";
+
+/* ====== HASH ====== */
+
+const sig = sha256(repo + key + salt);
+
+/* ====== FETCH ====== */
+
+fetch(
+"https://myenv.my-style.in/api.php" +
+"?repo=" + repo +
+"&key=" + key +
+"&sig=" + sig
+)
+
+.then(r => r.json())
+
+.then(env => {
+
+  if(env.error){
+    document.getElementById("msg")
+      .innerText = env.error;
+    return;
+  }
+
+  document.getElementById("msg")
+    .innerText = env.TEST_MESSAGE;
+
+});
+
+</script>
+
+</body>
+</html>
