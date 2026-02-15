@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>ENV Final Test</title>
+<title>ENV Test</title>
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
@@ -15,117 +15,57 @@ body{
   background:black;
   color:lime;
   font-family:Arial;
-  padding:20px;
-}
-.box{
-  border:2px solid lime;
-  padding:20px;
-  max-width:700px;
-}
-pre{
-  white-space:pre-wrap;
-  word-break:break-word;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 </style>
 
 </head>
 <body>
 
-<div class="box">
-
-<h2>ENV Debug Test</h2>
-
-<pre id="debug">Generating...</pre>
-
-<hr>
-
-<pre id="result">
-Loading ENV...
-</pre>
-
-</div>
+<div id="msg">Loading ENV...</div>
 
 <script>
 
-/* ================= CONFIG ================= */
+/* ===== CONFIG ===== */
 
 const repo="testing-env";
 const key ="fdf9119bf119a445";
 const salt="my-super-salt-789";
 
-/* ================= SIGNATURE ================= */
+/* ===== SIGNATURE ===== */
 
 const sig=sha256(repo+key+salt);
 
-/* ================= API URL ================= */
+/* ===== CALLBACK ===== */
 
-const apiURL=
+function loadENV(env){
+
+  if(env.error){
+    document.getElementById("msg")
+      .innerText=env.error;
+    return;
+  }
+
+  document.getElementById("msg")
+    .innerText=env.TEST_MESSAGE;
+
+}
+
+/* ===== JSONP SCRIPT LOAD ===== */
+
+const s=document.createElement("script");
+
+s.src=
 "https://myenv.my-style.in/api.php"+
 "?repo="+repo+
 "&key="+key+
-"&sig="+sig;
+"&sig="+sig+
+"&callback=loadENV";
 
-/* ================= DEBUG INFO ================= */
-
-document.getElementById("debug").innerText=
-"Repo: "+repo+"\n"+
-"Key: "+key+"\n"+
-"Salt: "+salt+"\n\n"+
-"Generated Signature:\n"+sig+"\n\n"+
-"API URL:\n"+apiURL;
-
-/* ================= FETCH ================= */
-
-fetch(apiURL,{
-  method:"GET",
-  mode:"cors"
-})
-
-.then(res=>{
-
-  if(!res.ok){
-    throw new Error(
-      "HTTP "+res.status
-    );
-  }
-
-  return res.text(); // safer than json()
-
-})
-
-.then(text=>{
-
-  try{
-
-    const env=JSON.parse(text);
-
-    document.getElementById("result")
-    .innerText=
-    JSON.stringify(env,null,2);
-
-  }
-  catch{
-
-    document.getElementById("result")
-    .innerText=
-    "Raw Response:\n"+text;
-
-  }
-
-})
-
-.catch(err=>{
-
-  document.getElementById("result")
-  .innerText=
-  "Fetch Failed:\n"+err+
-  "\n\nLikely causes:\n"+
-  "- CORS blocked\n"+
-  "- InfinityFree firewall\n"+
-  "- Mixed content\n"+
-  "- Network issue";
-
-});
+document.body.appendChild(s);
 
 </script>
 
