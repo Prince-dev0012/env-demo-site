@@ -1,140 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>ENV API Test</title>
-
-<style>
-body{
-  margin:0;
-  background:black;
-  color:lime;
-  font-family:Arial, sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  text-align:center;
-}
-
-.box{
-  border:2px solid lime;
-  padding:30px;
-  border-radius:12px;
-  box-shadow:0 0 20px lime;
-  max-width:400px;
-}
-
-h2{
-  margin-bottom:20px;
-}
-
-.status{
-  font-size:13px;
-  opacity:0.7;
-  margin-top:15px;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENVAPI Client Example</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="box">
+    <div class="container">
+        <h1>AI Content Generator</h1>
+        <p>Powered by ENVAPI & Gemini 2.5 Flash</p>
 
-<h2>ENV Loader</h2>
+        <!-- Configuration Section -->
+        <div class="config-panel">
+            <details>
+                <summary>Configuration (Click to Expand)</summary>
+                <div class="config-fields">
+                    <label>
+                        Backend URL:
+                        <input type="text" id="api-url" placeholder="https://your-worker.workers.dev/proxy" value="https://envapi-worker.free12345543210987.workers.dev/proxy">
+                    </label>
+                    <label>
+                        Project Key:
+                        <input type="text" id="project-key" placeholder="pk_..." value="">
+                    </label>
+                    <label>
+                        API Name:
+                        <input type="text" id="api-name" placeholder="my-gemini-api" value="">
+                    </label>
+                </div>
+            </details>
+        </div>
 
-<div id="message">
-Loading ENV...
-</div>
+        <!-- Main Interface -->
+        <div class="main-interface">
+            <textarea id="prompt-input" placeholder="Enter your prompt here..." rows="5">what is java</textarea>
+            <button id="generate-btn">Generate Content</button>
+            
+            <div id="loading" class="hidden">
+                <div class="spinner"></div> Generating...
+            </div>
 
-<div class="status" id="status">
-Preparing request...
-</div>
+            <div id="error-box" class="hidden"></div>
 
-</div>
+            <div id="result-box" class="hidden">
+                <h3>Result:</h3>
+                <div id="result-content"></div>
+            </div>
+        </div>
+    </div>
 
-<!-- ============================= -->
-<!-- 1️⃣ GLOBAL CALLBACK FUNCTION  -->
-<!-- ============================= -->
-
-<script>
-
-function loadENV(data){
-
-  const msg=document.getElementById("message");
-  const status=document.getElementById("status");
-
-  if(!data){
-    msg.innerText="No data received";
-    return;
-  }
-
-  if(data.error){
-    msg.innerText=data.error;
-    status.innerText="API returned error";
-    return;
-  }
-
-  msg.innerText=data.TEST_MESSAGE || "ENV loaded";
-  status.innerText="ENV Loaded Successfully";
-
-}
-
-</script>
-
-<!-- ============================= -->
-<!-- 2️⃣ SHA256 LIBRARY            -->
-<!-- ============================= -->
-
-<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/src/sha256.min.js"></script>
-
-<!-- ============================= -->
-<!-- 3️⃣ JSONP LOADER              -->
-<!-- ============================= -->
-
-<script>
-
-window.addEventListener("load",function(){
-
-  const repo="testing-env";
-  const key ="fdf9119bf119a445";
-  const salt="my-super-salt-789";
-
-  /* Generate signature */
-
-  const signature=sha256(repo+key+salt);
-
-  document.getElementById("status")
-    .innerText="Signature generated";
-
-  /* Build API URL */
-
-  const apiURL=
-  "https://myenv.my-style.in/api.php"+
-  "?repo="+repo+
-  "&key="+key+
-  "&sig="+signature+
-  "&callback=loadENV";
-
-  /* Create JSONP script */
-
-  const script=document.createElement("script");
-
-  script.src=apiURL;
-
-  script.onerror=function(){
-    document.getElementById("message")
-      .innerText="Failed to load API script";
-  };
-
-  document.body.appendChild(script);
-
-});
-
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
